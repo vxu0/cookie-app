@@ -77,7 +77,7 @@ async function generate(
       : ""
   }${
     restrictions ? ` It must be ${listToPhrase(objToList(restrictions))}.` : ""
-  } Provide two more options. Respond with only the dish names separated by commas and no other punctuation.`;
+  } Provide two more options. Each option should be commonly available at a restaurant. Limit each option to four words. Respond with only the dish names separated by commas and no other punctuation.`;
   console.log("PROMPT:", prompt);
   // return prompt;
   const chatCompletion = await openai.chat.completions.create({

@@ -2,12 +2,10 @@ import { useState } from "react";
 import { useForm } from "@mantine/form";
 import MotionWrapper from "./components/MotionWrapper.tsx";
 import "./App.css";
-import Results from "./components/Results.tsx";
 import PageBasics from "./components/Pages/PageBasics.tsx";
 import PageKeywords from "./components/Pages/PageKeywords.tsx";
 import PageCuisines from "./components/Pages/PageCuisines.tsx";
 import PageRestrictions from "./components/Pages/PageRestrictions.tsx";
-import PageLoading from "./components/Pages/PageLoading.tsx";
 import generate from "./prompt.tsx";
 import PageResults from "./components/Pages/PageResults.tsx";
 
