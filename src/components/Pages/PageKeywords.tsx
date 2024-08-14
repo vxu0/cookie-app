@@ -16,7 +16,8 @@ export default function PageKeywords({ backFn, nextFn, setFn, form }: Props) {
   // };
   return (
     <form
-      onSubmit={form.onSubmit((values: any) => {
+      onSubmit={form.onSubmit((values: {}) => {
+        // console.log("TYPE:", typeof values);
         // console.log("getvalues output:", form.getValues());
         console.log(values);
         setFn(values);

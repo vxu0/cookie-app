@@ -8,6 +8,7 @@
   background-color: rgb(50, 87, 92);
   /* background-color: #ffc847; */
   /* #242424; */
+  
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -108,6 +109,13 @@ button[disabled]{
   color: #666666;
   transform: none; */
   display: none;
+}
+
+.loading {
+  font-style: italic;
+  color: rgb(36, 62, 66);
+  height: 100%;
+  vertical-align: middle;
 }
 
 

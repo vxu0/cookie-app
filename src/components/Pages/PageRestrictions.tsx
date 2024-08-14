@@ -4,7 +4,7 @@ import Toggle from "../Toggle";
 interface Props {
   backFn: () => void;
   nextFn: () => void;
-  resultsFn: (restr: string[]) => void;
+  resultsFn: (restr: {}) => void;
   setFn: ({}) => void;
   form: any;
 }

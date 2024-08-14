@@ -5,24 +5,10 @@
   text-align: center;
 }
 
-/* .logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-} */
-
 .cookie {
   height: 6em;
   will-change: filter;
   transition: transform 300ms filter 300ms;
-  /* transition: transform filter; */
 }
 .cookie:hover {
   filter: drop-shadow(0 0 1em rgb(255, 207, 84));
@@ -58,23 +44,17 @@
 
 .row {
   display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
-
-/* .row:after {
-  content: "";
-  display: table;
-  clear: both;
-} */
-
-/* .column-toggle {
-  float: left;
-} */
 
 .column {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: flex-end;
+  align-items: center;
+  height: 100%;
 }
 
 .read-the-docs {

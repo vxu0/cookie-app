@@ -2,13 +2,14 @@ import { useState } from "react";
 import { useForm } from "@mantine/form";
 import MotionWrapper from "./components/MotionWrapper.tsx";
 import "./App.css";
-import { getRankedFoods } from "./script.tsx";
 import Results from "./components/Results.tsx";
 import PageBasics from "./components/Pages/PageBasics.tsx";
-import { motion } from "framer-motion";
 import PageKeywords from "./components/Pages/PageKeywords.tsx";
 import PageCuisines from "./components/Pages/PageCuisines.tsx";
 import PageRestrictions from "./components/Pages/PageRestrictions.tsx";
+import PageLoading from "./components/Pages/PageLoading.tsx";
+import generate from "./prompt.tsx";
+import PageResults from "./components/Pages/PageResults.tsx";
 
 // https://www.gcu.edu/blog/gcu-experience/most-popular-cuisines-us
 // chat GPT
@@ -28,7 +29,7 @@ function App() {
   const [cuisines, setCuisines] = useState({});
   const [_, setRestrictions] = useState({});
 
-  const [results, setResults] = useState(["loading...", "...", "..."]);
+  const [results, setResults] = useState(["", "", ""]);
 
   function nextPage() {
     setSection(section + 1);
@@ -38,45 +39,52 @@ function App() {
     setSection(section - 1);
   }
 
-  function getResults(restr: string[]) {
+  function getResults(restr: {}) {
     console.log("in results fn");
     setSection(-1);
-    document.body.style.background = "#5fa3ac";
-    if (sweetOrSavory === "sweet") {
-      console.log("inputs:", [basics, sweetKeywords, cuisines, restr]);
-      getRankedFoods([basics, sweetKeywords, cuisines, restr])
-        .then((res) => {
-          console.log("res:", res);
-          // return res;
-          setResults(res);
-          return res;
-          // nextPage();
-        })
-        .catch((err) => console.log("results error:", err));
-    } else {
-      console.log("inputs:", [basics, savoryKeywords, cuisines, restr]);
-      getRankedFoods([basics, savoryKeywords, cuisines, restr])
-        .then((res) => {
-          console.log("res:", res);
-          // return res;
-          setResults(res);
-          return res;
-          // nextPage();
-        })
-        .catch((err) => console.log("results error:", err));
+    // document.body.style.background = "#5fa3ac";
+    let sweet = sweetOrSavory === "sweet";
+    let lightLevel = 1;
+    switch (formBasics.values.lightHeavy) {
+      case "light":
+        lightLevel = 1;
+        break;
+      case "middle":
+        lightLevel = 2;
+        break;
+      case "heavy":
+        lightLevel = 3;
+        break;
+      default:
+        lightLevel = 2;
     }
+    let healthLevel = formBasics.values.healthyLevel;
+    let keywords = sweetOrSavory === "sweet" ? sweetKeywords : savoryKeywords;
+    // keywords = Object.keys(keywords).filter((key) => keywords[key]);
+    let restrictions = restr;
+
+    generate(sweet, lightLevel, healthLevel, keywords, cuisines, restrictions)
+      .then((res: string[] | undefined) => {
+        if (res) {
+          console.log(res);
+          setResults(res);
+        } else {
+          console.log("error generating result");
+        }
+      })
+      .catch((err) => console.log("error: ", err));
+
     return [];
   }
 
   function handleRestart() {
-    // window.location.reload();
     setSweetOrSavory("sweet");
     setBasics({});
     setSweetKeywords({});
     setSavoryKeywords({});
     setCuisines({});
     setRestrictions({});
-    setResults(["?", "?", "?"]);
+    setResults(["", "", ""]);
 
     formBasics.reset();
     formSavoryKeywords.reset();
@@ -157,6 +165,9 @@ function App() {
       </p>
       <br hidden={section === 0} />
 
+      {/* for compiling sakes; remove later */}
+      <p hidden={true}>{JSON.stringify(basics)}</p>
+
       <div className="card">
         {/* basics */}
         {section === 0 && (
@@ -174,88 +185,63 @@ function App() {
 
         {/* keywords */}
         {section === 1 && (
-          <motion.div
-            initial={{ x: 300, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -300, opacity: 0 }}
-          >
-            {sweetOrSavory === "sweet" ? (
-              <PageKeywords
-                backFn={backPage}
-                setFn={setSweetKeywords}
-                nextFn={nextPage}
-                form={formSweetKeywords}
-              />
-            ) : (
-              <PageKeywords
-                backFn={backPage}
-                setFn={setSavoryKeywords}
-                nextFn={nextPage}
-                form={formSavoryKeywords}
-              />
-            )}
-          </motion.div>
+          <MotionWrapper
+            body={
+              sweetOrSavory === "sweet" ? (
+                <PageKeywords
+                  backFn={backPage}
+                  setFn={setSweetKeywords}
+                  nextFn={nextPage}
+                  form={formSweetKeywords}
+                />
+              ) : (
+                <PageKeywords
+                  backFn={backPage}
+                  setFn={setSavoryKeywords}
+                  nextFn={nextPage}
+                  form={formSavoryKeywords}
+                />
+              )
+            }
+          />
         )}
 
         {/* cuisines */}
         {section === 2 && (
-          <motion.div
-            initial={{ x: 300, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -300, opacity: 0 }}
-          >
-            <PageCuisines
-              backFn={backPage}
-              nextFn={nextPage}
-              setFn={setCuisines}
-              form={formCuisines}
-            />
-          </motion.div>
+          <MotionWrapper
+            body={
+              <PageCuisines
+                backFn={backPage}
+                nextFn={nextPage}
+                setFn={setCuisines}
+                form={formCuisines}
+              />
+            }
+          />
         )}
 
         {/* restrictions */}
         {section === 3 && (
-          <motion.div
-            initial={{ x: 300, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -300, opacity: 0 }}
-          >
-            <PageRestrictions
-              backFn={backPage}
-              nextFn={nextPage}
-              resultsFn={getResults}
-              setFn={setRestrictions}
-              form={formRestrictions}
-            />
-          </motion.div>
+          <MotionWrapper
+            body={
+              <PageRestrictions
+                backFn={backPage}
+                nextFn={nextPage}
+                resultsFn={getResults}
+                setFn={setRestrictions}
+                form={formRestrictions}
+              />
+            }
+          />
         )}
-
-        {/* {section === 4 && (
-          <button
-            onClick={() => {
-              getResults();
-              nextPage();
-            }}
-          >
-            get results
-          </button>
-        )} */}
 
         {/* results */}
         {section === 4 && (
-          <motion.div
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-          >
-            <Results results={results} />
-            <br></br>
-            <br></br>
-            <br></br>
-            <button className="next" onClick={handleRestart}>
-              Start Over
-            </button>
-          </motion.div>
+          <MotionWrapper
+            body={
+              <PageResults results={results} handleRestart={handleRestart} />
+            }
+          />
         )}
       </div>
     </>
